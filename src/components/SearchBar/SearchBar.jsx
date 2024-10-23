@@ -1,35 +1,44 @@
-import toast, { Toaster } from 'react-hot-toast';
-import { useState } from 'react';
+import { Field, Form, Formik, ErrorMessage } from 'formik'
+import { Toaster } from 'react-hot-toast'
+import { warning } from '../ErrorMessage/ErrorMessage'
+import s from '../SearchBar/SearchBar.module.css'
 
-
-const SearchBar = ({ onSubmit }) => {
-    const [query, setQuery] = useState('')
-
-    const handleInputChange = (e) => {
-        setQuery(e.target.value)
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        if (query.trim() === '') {
-            toast.error('Enter text to search!')
+const SearchBar = ({ onSearch }) => {
+    const handleSubmit = (values, actions) => {
+        if (values.query === '') {
+            warning();
             return;
         }
-
-        onSubmit(query);
-        setQuery('')
-    }
+        onSearch(values.query);
+        actions.resetForm()
+    };
 
     return (
         <header>
+            <Formik onSubmit={handleSubmit} initialValues={{ query: '' }}>
+                <Form className={s.form}>
+                    <div className={s.container}>
+                        <Field 
+                        name='query'
+                        type='text'
+                        autoComplete='off'
+                        autoFocus
+                        placeholder='Search images and photos'
+                        className={s.input}
+                        />
+                        <button type='submit' className={s.button}>Search</button>
+                    </div>
+                    <ErrorMessage 
+                    type='text'
+                    name='query'
+                    component='p'
+                    className={s.error}
+                    />
+                </Form>
+            </Formik>
             <Toaster />
-            <form onSubmit={handleSubmit}>
-                <input type="text" value={query} onChange={handleInputChange} autoComplete='off' autoFocus placeholder='Search images..'/>
-                <button type='submit'>Search</button>
-            </form>
         </header>
     )
 }
 
-export default SearchBar;
+export default SearchBar
